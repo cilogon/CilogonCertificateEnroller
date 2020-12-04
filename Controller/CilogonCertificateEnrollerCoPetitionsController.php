@@ -37,10 +37,17 @@ class CilogonCertificateEnrollerCoPetitionsController extends CoPetitionsControl
 
     $this->log($logPrefix . "Found petition " . print_r($coPetition, true));
 
-    // XXX Only run if enrollment flow ID on petition is the "right" one...
+    // Only run if enrollment flow ID on the petition matches the configured
+    // required enrollment flow ID.
     
     $requiredEnrollmentFlowId = Configure::read('CilogonCertificateEnroller.enrollment_flow_id');
     $this->log($logPrefix . "Required enrollment flow ID is " . print_r($requiredEnrollmentFlowId, true));
+
+    $enrollmentFlowId = $coPetition['CoPetition']['co_enrollment_flow_id'];
+    if ($enrollmentFlowId != $requiredEnrollmentFlowId) {
+      $this->log($logPrefix . "Enrollment flow ID $enrollmentFlowId is not required enrollment flow ID $requiredEnrollmentFlowId so returning now");
+      $this->redirect($onFinish);
+    }
 
     // Use the petition to find the CoPerson Id.
     if (isset($coPetition['CoPetition']['enrollee_co_person_id'])) {
